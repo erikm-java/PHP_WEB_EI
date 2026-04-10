@@ -1,0 +1,242 @@
+/* ======================================================
+   Jardins de Lliçà - Full Custom CSS
+   ====================================================== */
+
+:root {
+    --green-dark:   #1b5e20;
+    --green-main:   #2e7d32;
+    --green-mid:    #388e3c;
+    --green-light:  #a5d6a7;
+    --green-pale:   #e8f5e9;
+    --amber:        #f9a825;
+    --text-dark:    #212121;
+    --text-muted:   #757575;
+}
+
+/* ── Global ─────────────────────────────────────────── */
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--text-dark);
+    background: #fafafa;
+}
+
+a { color: var(--green-main); text-decoration: none; }
+a:hover { color: var(--green-dark); }
+
+/* ── Navbar ─────────────────────────────────────────── */
+.navbar { background: var(--green-main) !important; }
+
+.navbar-brand .logo-icon { font-size: 1.5rem; }
+
+.navbar-nav .nav-link { font-weight: 500; transition: color 0.2s; }
+.navbar-nav .nav-link:hover { color: var(--green-light) !important; }
+.navbar-nav .nav-link.active { color: var(--amber) !important; }
+
+.cart-badge { font-size: 0.65rem; min-width: 18px; min-height: 18px; }
+
+/* ── Hero / Banner ──────────────────────────────────── */
+.hero-section {
+    background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 60%, #81c784 100%);
+    color: white;
+    padding: 80px 0;
+    position: relative;
+    overflow: hidden;
+}
+.hero-section::before {
+    content: '🌿';
+    position: absolute;
+    font-size: 200px;
+    right: 5%;
+    top: -20px;
+    opacity: 0.1;
+}
+.hero-section h1 { font-size: 2.8rem; font-weight: 700; }
+.hero-section p  { font-size: 1.15rem; opacity: 0.9; }
+
+/* ── Cards de producte ──────────────────────────────── */
+.product-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    transition: transform 0.25s, box-shadow 0.25s;
+    overflow: hidden;
+    height: 100%;
+}
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(46,125,50,.18);
+}
+.product-card .card-img-top {
+    height: 220px;
+    object-fit: cover;
+}
+.product-card .card-img-wrapper {
+    height: 220px;
+    overflow: hidden;
+    background: var(--green-pale);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.product-card .card-img-wrapper img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    transition: transform 0.4s;
+}
+.product-card:hover .card-img-wrapper img { transform: scale(1.05); }
+
+.product-card .price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--green-main);
+}
+.product-card .badge-featured {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+}
+
+/* ── Secció de títol ────────────────────────────────── */
+.section-title {
+    position: relative;
+    display: inline-block;
+    font-weight: 700;
+    color: var(--green-dark);
+}
+.section-title::after {
+    content: '';
+    display: block;
+    width: 60%;
+    height: 4px;
+    background: var(--green-light);
+    border-radius: 2px;
+    margin-top: 4px;
+}
+
+/* ── Carrusel d'ofertes ─────────────────────────────── */
+.offer-carousel .carousel-item img {
+    max-height: 350px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+.offer-carousel .carousel-caption {
+    background: rgba(0,0,0,.55);
+    border-radius: 8px;
+    padding: 16px;
+}
+.offer-card {
+    border-radius: 12px;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+    color: white;
+    min-height: 200px;
+}
+
+/* ── Formularis ─────────────────────────────────────── */
+.form-control:focus, .form-select:focus {
+    border-color: var(--green-main);
+    box-shadow: 0 0 0 0.2rem rgba(46,125,50,.25);
+}
+.btn-success { background-color: var(--green-main); border-color: var(--green-main); }
+.btn-success:hover { background-color: var(--green-dark); border-color: var(--green-dark); }
+.btn-outline-success { color: var(--green-main); border-color: var(--green-main); }
+.btn-outline-success:hover { background-color: var(--green-main); }
+
+/* ── Cistella ───────────────────────────────────────── */
+.cart-item-img { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; }
+.cart-summary { background: var(--green-pale); border-radius: 12px; padding: 24px; }
+.cart-total { font-size: 1.6rem; font-weight: 700; color: var(--green-dark); }
+
+/* ── Pàgina compra ──────────────────────────────────── */
+.checkout-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.07);
+}
+.order-summary-item { border-bottom: 1px solid #eee; padding: 8px 0; }
+
+/* ── Compte / Admin ─────────────────────────────────── */
+.account-sidebar {
+    background: var(--green-pale);
+    border-radius: 12px;
+    padding: 24px;
+}
+.account-sidebar .nav-link { color: var(--text-dark); border-radius: 8px; padding: 10px 14px; }
+.account-sidebar .nav-link:hover, .account-sidebar .nav-link.active {
+    background: var(--green-main);
+    color: white;
+}
+.admin-stat-card {
+    border-radius: 12px;
+    padding: 24px;
+    color: white;
+    text-align: center;
+}
+
+/* ── Footer ─────────────────────────────────────────── */
+.footer-link {
+    color: #9e9e9e;
+    display: block;
+    padding: 3px 0;
+    transition: color 0.2s;
+}
+.footer-link:hover { color: var(--green-light); }
+
+/* ── Cookie Banner ──────────────────────────────────── */
+.cookie-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    border-top: 3px solid var(--green-main);
+}
+
+/* ── Pàgina de contacte ─────────────────────────────── */
+.contact-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.07);
+    padding: 32px;
+}
+.contact-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.contact-info-icon {
+    width: 44px; height: 44px;
+    background: var(--green-pale);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--green-main);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+/* ── Paginació ──────────────────────────────────────── */
+.page-item.active .page-link { background-color: var(--green-main); border-color: var(--green-main); }
+.page-link { color: var(--green-main); }
+.page-link:hover { color: var(--green-dark); }
+
+/* ── Mòbil ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .hero-section h1 { font-size: 1.8rem; }
+    .hero-section { padding: 50px 0; }
+}
+
+/* ── Animació entrada ───────────────────────────────── */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in-up { animation: fadeInUp 0.5s ease forwards; }
+
+/* ── Targetes d'administració ───────────────────────── */
+.admin-table th { background: var(--green-pale); color: var(--green-dark); }
+.admin-table tr:hover { background: #f1f8f1; }
+
+/* ── Breadcrumb ─────────────────────────────────────── */
+.breadcrumb-item + .breadcrumb-item::before { color: var(--text-muted); }
