@@ -11,19 +11,24 @@ define('DB_CHARSET', 'utf8mb4');
 // ═════════════════════════════════════════════════════════════════════════════
 
 // URL del teu lloc web (sense barra final)
-// Exemple InfinityFree: 'https://jardinsllica.infinityfreeapp.com'
-// Exemple domini propi: 'https://jardinsllica.cat'
 define('SITE_URL', 'https://el-teu-domini.infinityfreeapp.com');
 
-// ── Brevo (brevo.com) – servei gratuït, 300 correus/dia ──────────────────────
-// Pas 1: Registra't a https://app.brevo.com (gratuït, sense targeta)
-// Pas 2: Ves a Settings → SMTP & API → API Keys → "Create a new API key"
-// Pas 3: Copia la clau i enganxa-la aquí:
-define('BREVO_API_KEY', 'xkeysib-POSA-LA-TEVA-CLAU-AQUI');
+// ── SMTP de Brevo (brevo.com) ─────────────────────────────────────────────────
+// A Brevo: Settings → SMTP & API → pestanya SMTP → "Generate a new SMTP Key"
+//
+// SMTP_HOST   → sempre: smtp-relay.brevo.com
+// SMTP_PORT   → sempre: 587
+// SMTP_SECURE → sempre: tls
+// SMTP_USER   → el teu correu de registre a Brevo (ex: erikmunuera@gmail.com)
+// SMTP_PASS   → la clau SMTP generada a Brevo (NO la contrasenya del compte)
+define('SMTP_HOST',   'smtp-relay.brevo.com');
+define('SMTP_PORT',   587);
+define('SMTP_SECURE', 'tls');
+define('SMTP_USER',   'el-teu-correu-de-brevo@gmail.com');  // ← canvia això
+define('SMTP_PASS',   'LA-TEVA-CLAU-SMTP-DE-BREVO');        // ← canvia això
 
 // Correu remitent (ha d'estar verificat a Brevo: Settings → Senders & IPs)
-// Pots usar el teu Gmail o qualsevol correu al qual tinguis accés
-define('MAIL_FROM',      'el-teu-correu@gmail.com');
+define('MAIL_FROM',      'noreplyjardinsdellica@gmail.com'); // ← el que tens verificat
 define('MAIL_FROM_NAME', 'Jardins de Lliçà');
 
 // ═════════════════════════════════════════════════════════════════════════════
