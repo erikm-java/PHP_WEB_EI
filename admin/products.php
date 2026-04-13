@@ -6,6 +6,11 @@ $pdo    = getDB();
 $action = $_GET['action'] ?? 'list';
 $id     = (int)($_GET['id'] ?? 0);
 
+// Variables per mostrar errors directament al modal (sense redirigir)
+$formErrors  = [];
+$reopenModal = false;
+$modalPost   = [];   // dades del formulari per repoblar els camps
+
 // ─── ELIMINAR ─────────────────────────────────────────────────────────────────
 if ($action === 'delete' && $id > 0) {
     $pdo->prepare("UPDATE products SET active=0 WHERE id=?")->execute([$id]);
@@ -18,76 +23,77 @@ if ($action === 'delete' && $id > 0) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name        = trim($_POST['name'] ?? '');
     $description = trim($_POST['description'] ?? '');
-    // Acceptar tant punt com coma com a separador decimal
     $price       = (float)str_replace(',', '.', $_POST['price'] ?? '0');
     $categoryId  = (int)($_POST['category_id'] ?? 0);
     $featured    = isset($_POST['featured']) ? 1 : 0;
     $stock       = (int)($_POST['stock'] ?? 0);
     $editId      = (int)($_POST['edit_id'] ?? 0);
 
-    $errors = [];
-    if (empty($name))  $errors[] = 'El nom del producte és obligatori.';
-    if ($price <= 0)   $errors[] = 'El preu ha de ser major que 0.';
+    // ── Validació ─────────────────────────────────────────────────────────────
+    if (empty($name))  $formErrors[] = 'El nom del producte és obligatori.';
+    if ($price <= 0)   $formErrors[] = 'El preu ha de ser major que 0 €.';
 
-    if (!empty($errors)) {
-        // Mostrar errors via flash i tornar a la pàgina
-        setFlash('danger', '<strong>Errors en el formulari:</strong><ul class="mb-0 mt-1"><li>' . implode('</li><li>', $errors) . '</li></ul>');
+    if (!empty($formErrors)) {
+        // Reobrir el modal amb els camps plens i l'error visible
+        $reopenModal = true;
+        $modalPost   = [
+            'edit_id'       => $editId,
+            'name'          => $name,
+            'price'         => $_POST['price'] ?? '',
+            'description'   => $description,
+            'category_id'   => $categoryId,
+            'stock'         => $stock,
+            'featured'      => $featured,
+            'current_image' => $_POST['current_image'] ?? 'no-image.png',
+        ];
+        // Caure a través per renderitzar la pàgina (NO redirigim)
+
+    } else {
+        // ── Gestionar imatge (NO bloqueja el guardatge si falla) ──────────────
+        $imageName    = $_POST['current_image'] ?? 'no-image.png';
+        $imageWarning = '';
+
+        if (!empty($_FILES['image']['name']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+            $ftype   = mime_content_type($_FILES['image']['tmp_name']);
+
+            if (!in_array($ftype, $allowed)) {
+                $imageWarning = 'Format d\'imatge no permès. El producte s\'ha desat sense nova imatge.';
+            } else {
+                $ext      = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+                $extMap   = ['jpg'=>'jpg','jpeg'=>'jpg','png'=>'png','webp'=>'webp','gif'=>'gif'];
+                $ext      = $extMap[$ext] ?? 'jpg';
+                $uploadDir = __DIR__ . '/../uploads/products/';
+                if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+                $newName  = 'prod_' . uniqid() . '.' . $ext;
+                $dest     = $uploadDir . $newName;
+                if (move_uploaded_file($_FILES['image']['tmp_name'], $dest)) {
+                    $imageName = $newName;
+                } else {
+                    $imageWarning = 'No s\'ha pogut pujar la imatge (comprova els permisos). El producte s\'ha desat sense nova imatge.';
+                }
+            }
+        }
+
+        // ── Desar a la BD ─────────────────────────────────────────────────────
+        if ($editId > 0) {
+            $pdo->prepare("UPDATE products SET name=?,description=?,price=?,category_id=?,featured=?,stock=?,image=? WHERE id=?")
+                ->execute([$name, $description, $price, $categoryId ?: null, $featured, $stock, $imageName, $editId]);
+            $msg = 'Producte «' . $name . '» actualitzat correctament!';
+        } else {
+            $pdo->prepare("INSERT INTO products (name,description,price,category_id,featured,stock,image,active) VALUES (?,?,?,?,?,?,?,1)")
+                ->execute([$name, $description, $price, $categoryId ?: null, $featured, $stock, $imageName]);
+            $msg = 'Producte «' . $name . '» creat correctament!';
+        }
+
+        setFlash($imageWarning ? 'warning' : 'success',
+            htmlspecialchars($msg) . ($imageWarning ? '<br><small>' . htmlspecialchars($imageWarning) . '</small>' : ''));
         header('Location: products.php');
         exit;
     }
-
-    // ── Gestionar imatge (NO bloqueja el guardatge si falla) ──────────────────
-    $imageName    = $_POST['current_image'] ?? 'no-image.png';
-    $imageWarning = '';
-
-    if (!empty($_FILES['image']['name']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-        $ftype   = mime_content_type($_FILES['image']['tmp_name']); // més fiable que $_FILES[type]
-
-        if (!in_array($ftype, $allowed)) {
-            $imageWarning = 'Format d\'imatge no permès. El producte s\'ha desat sense imatge.';
-        } else {
-            $ext  = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
-            $safe = ['jpg'=>'jpg','jpeg'=>'jpg','png'=>'png','webp'=>'webp','gif'=>'gif'];
-            $ext  = $safe[$ext] ?? 'jpg';
-
-            $uploadDir = __DIR__ . '/../uploads/products/';
-            // Crear directori si no existeix
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
-
-            $newName = 'prod_' . uniqid() . '.' . $ext;
-            $dest    = $uploadDir . $newName;
-
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $dest)) {
-                $imageName = $newName;
-            } else {
-                $imageWarning = 'No s\'ha pogut pujar la imatge (comprova els permisos de la carpeta uploads/). El producte s\'ha desat sense imatge.';
-            }
-        }
-    }
-
-    // ── Desar a la BD ─────────────────────────────────────────────────────────
-    if ($editId > 0) {
-        $pdo->prepare("UPDATE products SET name=?,description=?,price=?,category_id=?,featured=?,stock=?,image=? WHERE id=?")
-            ->execute([$name, $description, $price, $categoryId ?: null, $featured, $stock, $imageName, $editId]);
-        $msg = 'Producte <strong>' . htmlspecialchars($name) . '</strong> actualitzat correctament!';
-    } else {
-        $pdo->prepare("INSERT INTO products (name,description,price,category_id,featured,stock,image,active) VALUES (?,?,?,?,?,?,?,1)")
-            ->execute([$name, $description, $price, $categoryId ?: null, $featured, $stock, $imageName]);
-        $msg = 'Producte <strong>' . htmlspecialchars($name) . '</strong> creat correctament!';
-    }
-
-    if ($imageWarning) {
-        setFlash('warning', $msg . '<br><small><i class="bi bi-exclamation-triangle me-1"></i>' . $imageWarning . '</small>');
-    } else {
-        setFlash('success', $msg);
-    }
-    header('Location: products.php');
-    exit;
 }
 
+// ─── Carregar dades per a la pàgina ───────────────────────────────────────────
 $categories = getCategories();
 $products   = $pdo->query(
     "SELECT p.*, c.name AS cat_name
@@ -169,14 +175,19 @@ require_once '../includes/header.php';
                             </td>
                             <td>
                                 <div class="d-flex gap-1">
-                                    <button class="btn btn-outline-primary btn-sm"
-                                            onclick='openEditModal(<?= json_encode($p) ?>)'
+                                    <!--
+                                        FIX: Usem data-product amb htmlspecialchars(json_encode())
+                                        en lloc d'onclick='..json_encode..' per evitar que les
+                                        apostrofes del català (d'interior, etc.) trenquin l'atribut.
+                                    -->
+                                    <button class="btn btn-outline-primary btn-sm btn-edit"
+                                            data-product="<?= htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8') ?>"
                                             title="Editar">
                                         <i class="bi bi-pencil-fill"></i>
                                     </button>
                                     <a href="products.php?action=delete&id=<?= $p['id'] ?>"
                                        class="btn btn-outline-danger btn-sm"
-                                       onclick="return confirm('Eliminar el producte \'<?= h(addslashes($p['name'])) ?>\'?')"
+                                       onclick="return confirm('Segur que vols eliminar aquest producte?')"
                                        title="Eliminar">
                                         <i class="bi bi-trash3-fill"></i>
                                     </a>
@@ -192,8 +203,10 @@ require_once '../includes/header.php';
     </div>
 </div>
 
-<!-- MODAL: Afegir / Editar producte -->
-<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL: Afegir / Editar producte
+     ═══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form id="productForm" action="products.php" method="POST" enctype="multipart/form-data">
@@ -203,7 +216,15 @@ require_once '../includes/header.php';
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
+                    <!-- Errors de validació (es mostra quan hi ha errors de PHP) -->
+                    <div id="modalErrors" class="alert alert-danger d-none mb-3">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <strong>Corregeix els errors:</strong>
+                        <ul id="modalErrorList" class="mb-0 mt-1 ps-3"></ul>
+                    </div>
+
                     <input type="hidden" name="edit_id" id="editId" value="0">
                     <input type="hidden" name="current_image" id="currentImage" value="no-image.png">
 
@@ -264,6 +285,7 @@ require_once '../includes/header.php';
                         </div>
                     </div>
                 </div>
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel·lar</button>
                     <button type="submit" class="btn btn-success fw-bold">
@@ -275,50 +297,88 @@ require_once '../includes/header.php';
     </div>
 </div>
 
+<!-- Dades PHP per a JS (errors de validació + dades del formulari si cal reobrir) -->
+<?php if ($reopenModal): ?>
 <script>
+const _phpErrors   = <?= json_encode($formErrors, JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+const _phpPostData = <?= json_encode($modalPost,  JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+</script>
+<?php endif; ?>
+
+<script>
+// ── Instància única del modal ──────────────────────────────────────────────────
 const productModal = new bootstrap.Modal(document.getElementById('productModal'));
 
-// Botó "Afegir producte" → reseteja el modal i l'obre
+// ── Botó "Afegir producte" ────────────────────────────────────────────────────
 document.getElementById('btnNouProducte').addEventListener('click', function () {
-    resetModal();
-    document.getElementById('modalTitle').innerHTML = '<i class="bi bi-box-seam me-2"></i>Nou producte';
+    fillModal({});
+    document.getElementById('modalTitle').innerHTML =
+        '<i class="bi bi-box-seam me-2"></i>Nou producte';
+    clearErrors();
     productModal.show();
 });
 
-// Botó "Editar" → omple el modal amb les dades del producte
-function openEditModal(p) {
-    resetModal();
-    document.getElementById('modalTitle').innerHTML = '<i class="bi bi-pencil-fill me-2"></i>Editar producte';
-    document.getElementById('editId').value     = p.id;
-    document.getElementById('prodName').value   = p.name;
-    document.getElementById('prodPrice').value  = p.price;
-    document.getElementById('prodDesc').value   = p.description || '';
-    document.getElementById('prodCat').value    = p.category_id || '';
-    document.getElementById('prodStock').value  = p.stock || 0;
-    document.getElementById('prodFeatured').checked = (p.featured == 1);
-    document.getElementById('currentImage').value   = p.image;
-    productModal.show();
-}
+// ── Botons "Editar" (delegació d'events, segur per a qualsevol caràcter) ──────
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.btn-edit');
+    if (!btn) return;
+    try {
+        // El navegador decodifica automàticament les entitats HTML del data attribute
+        const p = JSON.parse(btn.getAttribute('data-product'));
+        fillModal(p);
+        document.getElementById('modalTitle').innerHTML =
+            '<i class="bi bi-pencil-fill me-2"></i>Editar producte';
+        clearErrors();
+        productModal.show();
+    } catch(err) {
+        alert('Error en carregar el producte: ' + err.message);
+    }
+});
 
-function resetModal() {
-    document.getElementById('editId').value     = '0';
-    document.getElementById('prodName').value   = '';
-    document.getElementById('prodPrice').value  = '';
-    document.getElementById('prodDesc').value   = '';
-    document.getElementById('prodCat').value    = '';
-    document.getElementById('prodStock').value  = '0';
-    document.getElementById('prodFeatured').checked = false;
-    document.getElementById('currentImage').value   = 'no-image.png';
-    document.getElementById('prodImage').value  = '';
+// ── Omplir el modal amb les dades d'un producte ───────────────────────────────
+function fillModal(p) {
+    document.getElementById('editId').value          = p.edit_id     ?? p.id          ?? '0';
+    document.getElementById('prodName').value        = p.name        ?? '';
+    document.getElementById('prodPrice').value       = p.price       ?? '';
+    document.getElementById('prodDesc').value        = p.description ?? '';
+    document.getElementById('prodCat').value         = p.category_id ?? '';
+    document.getElementById('prodStock').value       = p.stock       ?? 0;
+    document.getElementById('prodFeatured').checked  = (p.featured == 1);
+    document.getElementById('currentImage').value   = p.current_image ?? p.image ?? 'no-image.png';
+    document.getElementById('prodImage').value       = '';
     document.getElementById('imgPreviewWrap').classList.add('d-none');
 }
 
-// Previsualització de la imatge seleccionada
+// ── Mostrar / amagar errors dins el modal ─────────────────────────────────────
+function clearErrors() {
+    document.getElementById('modalErrors').classList.add('d-none');
+    document.getElementById('modalErrorList').innerHTML = '';
+}
+
+function showErrors(errors) {
+    const list = document.getElementById('modalErrorList');
+    list.innerHTML = errors.map(e => '<li>' + e + '</li>').join('');
+    document.getElementById('modalErrors').classList.remove('d-none');
+}
+
+// ── Si PHP ha retornat errors, reobrir modal amb les dades i errors ───────────
+<?php if ($reopenModal): ?>
+document.addEventListener('DOMContentLoaded', function () {
+    fillModal(_phpPostData);
+    document.getElementById('modalTitle').innerHTML = _phpPostData.edit_id > 0
+        ? '<i class="bi bi-pencil-fill me-2"></i>Editar producte'
+        : '<i class="bi bi-box-seam me-2"></i>Nou producte';
+    showErrors(_phpErrors);
+    productModal.show();
+});
+<?php endif; ?>
+
+// ── Previsualització de la imatge seleccionada ────────────────────────────────
 document.getElementById('prodImage').addEventListener('change', function () {
     const file = this.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function (e) {
         document.getElementById('imgPreview').src = e.target.result;
         document.getElementById('imgPreviewWrap').classList.remove('d-none');
     };
