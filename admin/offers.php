@@ -6,7 +6,16 @@ $pdo    = getDB();
 $action = $_GET['action'] ?? 'list';
 $id     = (int)($_GET['id'] ?? 0);
 
-// Eliminar oferta
+// ─── TOGGLE actiu/inactiu (ha d'anar ABANS de qualsevol HTML) ────────────────
+if (isset($_GET['toggle'])) {
+    $tid = (int)$_GET['toggle'];
+    $pdo->prepare("UPDATE offers SET active = NOT active WHERE id=?")->execute([$tid]);
+    setFlash('success', 'Estat de l\'oferta actualitzat.');
+    header('Location: offers.php');
+    exit;
+}
+
+// ─── ELIMINAR ─────────────────────────────────────────────────────────────────
 if ($action === 'delete' && $id > 0) {
     $pdo->prepare("UPDATE offers SET active=0 WHERE id=?")->execute([$id]);
     setFlash('success', 'Oferta eliminada correctament.');
@@ -14,48 +23,69 @@ if ($action === 'delete' && $id > 0) {
     exit;
 }
 
-// Guardar oferta
+// ─── GUARDAR oferta ───────────────────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name    = trim($_POST['name'] ?? '');
     $message = trim($_POST['message'] ?? '');
     $editId  = (int)($_POST['edit_id'] ?? 0);
-    $errors  = [];
 
-    if (empty($name)) $errors[] = 'El nom de l\'oferta és obligatori.';
+    if (empty($name)) {
+        setFlash('danger', 'El nom de l\'oferta és obligatori.');
+        header('Location: offers.php');
+        exit;
+    }
 
-    // Gestió d'imatge
-    $imageName = $_POST['current_image'] ?? 'no-image.png';
-    if (!empty($_FILES['image']['name'])) {
-        $allowed = ['image/jpeg','image/png','image/webp','image/gif'];
-        if (!in_array($_FILES['image']['type'], $allowed)) {
-            $errors[] = 'Format d\'imatge no permès.';
+    // ── Gestió d'imatge (NO bloqueja el guardatge si falla) ──────────────────
+    $imageName    = $_POST['current_image'] ?? 'no-image.png';
+    $imageWarning = '';
+
+    if (!empty($_FILES['image']['name']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        $ftype   = mime_content_type($_FILES['image']['tmp_name']);
+
+        if (!in_array($ftype, $allowed)) {
+            $imageWarning = 'Format d\'imatge no permès.';
         } else {
-            $ext       = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $imageName = uniqid('offer_') . '.' . $ext;
-            $dest      = __DIR__ . '/../uploads/offers/' . $imageName;
-            if (!move_uploaded_file($_FILES['image']['tmp_name'], $dest)) {
-                $errors[] = 'Error en pujar la imatge.';
-                $imageName = $_POST['current_image'] ?? 'no-image.png';
+            $ext  = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+            $safe = ['jpg'=>'jpg','jpeg'=>'jpg','png'=>'png','webp'=>'webp','gif'=>'gif'];
+            $ext  = $safe[$ext] ?? 'jpg';
+
+            $uploadDir = __DIR__ . '/../uploads/offers/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            $newName = 'offer_' . uniqid() . '.' . $ext;
+            $dest    = $uploadDir . $newName;
+
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $dest)) {
+                $imageName = $newName;
+            } else {
+                $imageWarning = 'No s\'ha pogut pujar la imatge. Comprova els permisos de la carpeta uploads/.';
             }
         }
     }
 
-    if (empty($errors)) {
-        if ($editId > 0) {
-            $pdo->prepare("UPDATE offers SET name=?,message=?,image=? WHERE id=?")
-                ->execute([$name, $message, $imageName, $editId]);
-            setFlash('success', 'Oferta actualitzada!');
-        } else {
-            $pdo->prepare("INSERT INTO offers (name,message,image) VALUES (?,?,?)")
-                ->execute([$name, $message, $imageName]);
-            setFlash('success', 'Oferta creada!');
-        }
-        header('Location: offers.php');
-        exit;
+    if ($editId > 0) {
+        $pdo->prepare("UPDATE offers SET name=?,message=?,image=? WHERE id=?")
+            ->execute([$name, $message, $imageName, $editId]);
+        $msg = 'Oferta <strong>' . htmlspecialchars($name) . '</strong> actualitzada!';
+    } else {
+        $pdo->prepare("INSERT INTO offers (name,message,image,active) VALUES (?,?,?,1)")
+            ->execute([$name, $message, $imageName]);
+        $msg = 'Oferta <strong>' . htmlspecialchars($name) . '</strong> creada!';
     }
-    foreach ($errors as $e) setFlash('danger', $e);
+
+    if ($imageWarning) {
+        setFlash('warning', $msg . '<br><small>' . $imageWarning . '</small>');
+    } else {
+        setFlash('success', $msg);
+    }
+    header('Location: offers.php');
+    exit;
 }
 
+// ─── LLISTA ───────────────────────────────────────────────────────────────────
 $offers    = $pdo->query("SELECT * FROM offers ORDER BY active DESC, created_at DESC")->fetchAll();
 $pageTitle = 'Administració - Ofertes';
 require_once '../includes/header.php';
@@ -70,7 +100,7 @@ require_once '../includes/header.php';
             <a href="/PHP_WEB_EI/admin/index.php" class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-arrow-left me-1"></i>Dashboard
             </a>
-            <button class="btn btn-warning btn-sm text-dark" data-bs-toggle="modal" data-bs-target="#offerModal">
+            <button class="btn btn-warning btn-sm text-dark" id="btnNovaOferta">
                 <i class="bi bi-plus-circle me-1"></i>Nova oferta
             </button>
         </div>
@@ -79,7 +109,9 @@ require_once '../includes/header.php';
     <div class="row g-4">
         <?php if (empty($offers)): ?>
         <div class="col-12">
-            <div class="alert alert-info">Sense ofertes creades. Afegeix-ne una!</div>
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>Sense ofertes creades. Afegeix-ne una!
+            </div>
         </div>
         <?php else: ?>
         <?php foreach ($offers as $offer): ?>
@@ -101,15 +133,15 @@ require_once '../includes/header.php';
                 </div>
                 <div class="card-footer bg-white d-flex gap-2">
                     <button class="btn btn-outline-primary btn-sm flex-grow-1"
-                            onclick='editOffer(<?= json_encode($offer) ?>)'>
+                            onclick='openEditOfferModal(<?= json_encode($offer) ?>)'>
                         <i class="bi bi-pencil-fill me-1"></i>Editar
                     </button>
                     <a href="offers.php?action=delete&id=<?= $offer['id'] ?>"
                        class="btn btn-outline-danger btn-sm"
-                       onclick="return confirm('Eliminar oferta?')" title="Eliminar">
+                       onclick="return confirm('Eliminar l\'oferta \'<?= h(addslashes($offer['name'])) ?>\'?')"
+                       title="Eliminar">
                         <i class="bi bi-trash3-fill"></i>
                     </a>
-                    <!-- Toggle actiu/inactiu -->
                     <a href="offers.php?toggle=<?= $offer['id'] ?>"
                        class="btn btn-outline-secondary btn-sm"
                        title="<?= $offer['active'] ? 'Desactivar' : 'Activar' ?>">
@@ -127,7 +159,7 @@ require_once '../includes/header.php';
 <div class="modal fade" id="offerModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="" method="POST" enctype="multipart/form-data" novalidate>
+            <form id="offerForm" action="offers.php" method="POST" enctype="multipart/form-data">
                 <div class="modal-header bg-warning text-dark">
                     <h5 class="modal-title fw-bold" id="offerModalTitle">
                         <i class="bi bi-tag-fill me-2"></i>Nova oferta
@@ -139,15 +171,25 @@ require_once '../includes/header.php';
                     <input type="hidden" name="current_image" id="oCurrentImage" value="no-image.png">
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Nom de l'oferta *</label>
-                        <input type="text" name="name" id="oName" class="form-control" required maxlength="200">
+                        <input type="text" name="name" id="oName" class="form-control"
+                               placeholder="Ex: Oferta de primavera" required maxlength="200">
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Missatge / Descripció</label>
-                        <textarea name="message" id="oMessage" class="form-control" rows="4" maxlength="500"></textarea>
+                        <textarea name="message" id="oMessage" class="form-control"
+                                  rows="4" maxlength="500"
+                                  placeholder="Descriu l'oferta..."></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Imatge (opcional)</label>
-                        <input type="file" name="image" class="form-control" accept="image/*">
+                        <label class="form-label fw-semibold">
+                            Imatge <small class="text-muted fw-normal">(opcional — JPG, PNG, WEBP)</small>
+                        </label>
+                        <input type="file" name="image" id="oImage" class="form-control"
+                               accept="image/jpeg,image/png,image/webp,image/gif">
+                        <div id="oImgPreviewWrap" class="mt-2 d-none">
+                            <img id="oImgPreview" src="" alt="previsualització"
+                                 style="height:80px;border-radius:8px;object-fit:cover;">
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -161,32 +203,43 @@ require_once '../includes/header.php';
     </div>
 </div>
 
-<?php
-// Toggle actiu/inactiu
-if (isset($_GET['toggle'])) {
-    $tid = (int)$_GET['toggle'];
-    $pdo->prepare("UPDATE offers SET active = NOT active WHERE id=?")->execute([$tid]);
-    header('Location: offers.php');
-    exit;
-}
-?>
-
 <script>
-function editOffer(o) {
+const offerModal = new bootstrap.Modal(document.getElementById('offerModal'));
+
+document.getElementById('btnNovaOferta').addEventListener('click', function () {
+    resetOfferModal();
+    document.getElementById('offerModalTitle').innerHTML = '<i class="bi bi-tag-fill me-2"></i>Nova oferta';
+    offerModal.show();
+});
+
+function openEditOfferModal(o) {
+    resetOfferModal();
     document.getElementById('offerModalTitle').innerHTML = '<i class="bi bi-pencil-fill me-2"></i>Editar oferta';
-    document.getElementById('oEditId').value    = o.id;
-    document.getElementById('oName').value      = o.name;
-    document.getElementById('oMessage').value   = o.message || '';
-    document.getElementById('oCurrentImage').value = o.image;
-    new bootstrap.Modal(document.getElementById('offerModal')).show();
+    document.getElementById('oEditId').value        = o.id;
+    document.getElementById('oName').value          = o.name;
+    document.getElementById('oMessage').value       = o.message || '';
+    document.getElementById('oCurrentImage').value  = o.image;
+    offerModal.show();
 }
 
-document.getElementById('offerModal').addEventListener('show.bs.modal', function(event) {
-    if (!event.relatedTarget) return;
-    document.getElementById('offerModalTitle').innerHTML = '<i class="bi bi-tag-fill me-2"></i>Nova oferta';
-    document.getElementById('oEditId').value  = '0';
-    document.getElementById('oName').value    = '';
-    document.getElementById('oMessage').value = '';
+function resetOfferModal() {
+    document.getElementById('oEditId').value       = '0';
+    document.getElementById('oName').value         = '';
+    document.getElementById('oMessage').value      = '';
+    document.getElementById('oCurrentImage').value = 'no-image.png';
+    document.getElementById('oImage').value        = '';
+    document.getElementById('oImgPreviewWrap').classList.add('d-none');
+}
+
+document.getElementById('oImage').addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('oImgPreview').src = e.target.result;
+        document.getElementById('oImgPreviewWrap').classList.remove('d-none');
+    };
+    reader.readAsDataURL(file);
 });
 </script>
 

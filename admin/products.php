@@ -5,10 +5,8 @@ requireAdmin();
 $pdo    = getDB();
 $action = $_GET['action'] ?? 'list';
 $id     = (int)($_GET['id'] ?? 0);
-$errors = [];
-$success = '';
 
-// ─── ELIMINAR ────────────────────────────────────────────────────────────────
+// ─── ELIMINAR ─────────────────────────────────────────────────────────────────
 if ($action === 'delete' && $id > 0) {
     $pdo->prepare("UPDATE products SET active=0 WHERE id=?")->execute([$id]);
     setFlash('success', 'Producte eliminat correctament.');
@@ -20,59 +18,86 @@ if ($action === 'delete' && $id > 0) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name        = trim($_POST['name'] ?? '');
     $description = trim($_POST['description'] ?? '');
-    $price       = (float)($_POST['price'] ?? 0);
+    // Acceptar tant punt com coma com a separador decimal
+    $price       = (float)str_replace(',', '.', $_POST['price'] ?? '0');
     $categoryId  = (int)($_POST['category_id'] ?? 0);
     $featured    = isset($_POST['featured']) ? 1 : 0;
     $stock       = (int)($_POST['stock'] ?? 0);
     $editId      = (int)($_POST['edit_id'] ?? 0);
 
-    if (empty($name))   $errors[] = 'El nom del producte és obligatori.';
-    if ($price <= 0)    $errors[] = 'El preu ha de ser major que 0.';
+    $errors = [];
+    if (empty($name))  $errors[] = 'El nom del producte és obligatori.';
+    if ($price <= 0)   $errors[] = 'El preu ha de ser major que 0.';
 
-    // Gestionar imatge
-    $imageName = $_POST['current_image'] ?? 'no-image.png';
-    if (!empty($_FILES['image']['name'])) {
+    if (!empty($errors)) {
+        // Mostrar errors via flash i tornar a la pàgina
+        setFlash('danger', '<strong>Errors en el formulari:</strong><ul class="mb-0 mt-1"><li>' . implode('</li><li>', $errors) . '</li></ul>');
+        header('Location: products.php');
+        exit;
+    }
+
+    // ── Gestionar imatge (NO bloqueja el guardatge si falla) ──────────────────
+    $imageName    = $_POST['current_image'] ?? 'no-image.png';
+    $imageWarning = '';
+
+    if (!empty($_FILES['image']['name']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-        if (!in_array($_FILES['image']['type'], $allowed)) {
-            $errors[] = 'Format d\'imatge no permès. Utilitza JPG, PNG, WEBP o GIF.';
+        $ftype   = mime_content_type($_FILES['image']['tmp_name']); // més fiable que $_FILES[type]
+
+        if (!in_array($ftype, $allowed)) {
+            $imageWarning = 'Format d\'imatge no permès. El producte s\'ha desat sense imatge.';
         } else {
-            $ext       = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $imageName = uniqid('prod_') . '.' . $ext;
-            $dest      = __DIR__ . '/../uploads/products/' . $imageName;
-            if (!move_uploaded_file($_FILES['image']['tmp_name'], $dest)) {
-                $errors[] = 'Error en pujar la imatge.';
-                $imageName = $_POST['current_image'] ?? 'no-image.png';
+            $ext  = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+            $safe = ['jpg'=>'jpg','jpeg'=>'jpg','png'=>'png','webp'=>'webp','gif'=>'gif'];
+            $ext  = $safe[$ext] ?? 'jpg';
+
+            $uploadDir = __DIR__ . '/../uploads/products/';
+            // Crear directori si no existeix
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            $newName = 'prod_' . uniqid() . '.' . $ext;
+            $dest    = $uploadDir . $newName;
+
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $dest)) {
+                $imageName = $newName;
+            } else {
+                $imageWarning = 'No s\'ha pogut pujar la imatge (comprova els permisos de la carpeta uploads/). El producte s\'ha desat sense imatge.';
             }
         }
     }
 
-    if (empty($errors)) {
-        if ($editId > 0) {
-            $pdo->prepare("UPDATE products SET name=?,description=?,price=?,category_id=?,featured=?,stock=?,image=? WHERE id=?")
-                ->execute([$name, $description, $price, $categoryId ?: null, $featured, $stock, $imageName, $editId]);
-            setFlash('success', 'Producte actualitzat correctament!');
-        } else {
-            $pdo->prepare("INSERT INTO products (name,description,price,category_id,featured,stock,image) VALUES (?,?,?,?,?,?,?)")
-                ->execute([$name, $description, $price, $categoryId ?: null, $featured, $stock, $imageName]);
-            setFlash('success', 'Producte creat correctament!');
-        }
-        header('Location: products.php');
-        exit;
+    // ── Desar a la BD ─────────────────────────────────────────────────────────
+    if ($editId > 0) {
+        $pdo->prepare("UPDATE products SET name=?,description=?,price=?,category_id=?,featured=?,stock=?,image=? WHERE id=?")
+            ->execute([$name, $description, $price, $categoryId ?: null, $featured, $stock, $imageName, $editId]);
+        $msg = 'Producte <strong>' . htmlspecialchars($name) . '</strong> actualitzat correctament!';
+    } else {
+        $pdo->prepare("INSERT INTO products (name,description,price,category_id,featured,stock,image,active) VALUES (?,?,?,?,?,?,?,1)")
+            ->execute([$name, $description, $price, $categoryId ?: null, $featured, $stock, $imageName]);
+        $msg = 'Producte <strong>' . htmlspecialchars($name) . '</strong> creat correctament!';
     }
+
+    if ($imageWarning) {
+        setFlash('warning', $msg . '<br><small><i class="bi bi-exclamation-triangle me-1"></i>' . $imageWarning . '</small>');
+    } else {
+        setFlash('success', $msg);
+    }
+    header('Location: products.php');
+    exit;
 }
 
-// Dades pel formulari (mode edit)
-$editProduct = null;
-if ($action === 'edit' && $id > 0) {
-    $editProduct = $pdo->prepare("SELECT * FROM products WHERE id=?")->execute([$id]) ? null : null;
-    $stmt = $pdo->prepare("SELECT * FROM products WHERE id=?");
-    $stmt->execute([$id]);
-    $editProduct = $stmt->fetch();
-}
+$categories = getCategories();
+$products   = $pdo->query(
+    "SELECT p.*, c.name AS cat_name
+     FROM products p
+     LEFT JOIN categories c ON p.category_id = c.id
+     WHERE p.active = 1
+     ORDER BY p.name"
+)->fetchAll();
 
-$categories  = getCategories();
-$products    = $pdo->query("SELECT p.*, c.name AS cat_name FROM products p LEFT JOIN categories c ON p.category_id=c.id WHERE p.active=1 ORDER BY p.name")->fetchAll();
-$pageTitle   = 'Administració - Productes';
+$pageTitle = 'Administració - Productes';
 require_once '../includes/header.php';
 ?>
 
@@ -85,7 +110,7 @@ require_once '../includes/header.php';
             <a href="/PHP_WEB_EI/admin/index.php" class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-arrow-left me-1"></i>Dashboard
             </a>
-            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#productModal">
+            <button class="btn btn-success btn-sm" id="btnNouProducte">
                 <i class="bi bi-plus-circle me-1"></i>Afegir producte
             </button>
         </div>
@@ -110,7 +135,7 @@ require_once '../includes/header.php';
                     </thead>
                     <tbody>
                         <?php if (empty($products)): ?>
-                        <tr><td colspan="8" class="text-center text-muted py-4">Sense productes</td></tr>
+                        <tr><td colspan="8" class="text-center text-muted py-4">Sense productes. Afegeix-ne un!</td></tr>
                         <?php else: ?>
                         <?php foreach ($products as $p): ?>
                         <tr>
@@ -122,7 +147,9 @@ require_once '../includes/header.php';
                             </td>
                             <td>
                                 <strong><?= h($p['name']) ?></strong>
-                                <br><small class="text-muted"><?= h(mb_substr($p['description'], 0, 50)) ?>...</small>
+                                <?php if (!empty($p['description'])): ?>
+                                <br><small class="text-muted"><?= h(mb_substr($p['description'], 0, 55)) ?>...</small>
+                                <?php endif; ?>
                             </td>
                             <td><?= h($p['cat_name'] ?? '-') ?></td>
                             <td class="fw-bold text-success"><?= number_format($p['price'], 2) ?> €</td>
@@ -136,12 +163,14 @@ require_once '../includes/header.php';
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <?= $p['featured'] ? '<i class="bi bi-star-fill text-warning fs-5"></i>' : '<i class="bi bi-star text-muted fs-5"></i>' ?>
+                                <?= $p['featured']
+                                    ? '<i class="bi bi-star-fill text-warning fs-5"></i>'
+                                    : '<i class="bi bi-star text-muted fs-5"></i>' ?>
                             </td>
                             <td>
                                 <div class="d-flex gap-1">
                                     <button class="btn btn-outline-primary btn-sm"
-                                            onclick='editProduct(<?= json_encode($p) ?>)'
+                                            onclick='openEditModal(<?= json_encode($p) ?>)'
                                             title="Editar">
                                         <i class="bi bi-pencil-fill"></i>
                                     </button>
@@ -164,10 +193,10 @@ require_once '../includes/header.php';
 </div>
 
 <!-- MODAL: Afegir / Editar producte -->
-<div class="modal fade" id="productModal" tabindex="-1">
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form action="" method="POST" enctype="multipart/form-data" novalidate>
+            <form id="productForm" action="products.php" method="POST" enctype="multipart/form-data">
                 <div class="modal-header bg-success text-white">
                     <h5 class="modal-title fw-bold" id="modalTitle">
                         <i class="bi bi-box-seam me-2"></i>Nou producte
@@ -181,15 +210,22 @@ require_once '../includes/header.php';
                     <div class="row g-3">
                         <div class="col-md-8">
                             <label class="form-label fw-semibold">Nom del producte *</label>
-                            <input type="text" name="name" id="prodName" class="form-control" required maxlength="200">
+                            <input type="text" name="name" id="prodName" class="form-control"
+                                   placeholder="Ex: Monstera Deliciosa" required maxlength="200">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Preu (€) *</label>
-                            <input type="number" name="price" id="prodPrice" class="form-control" step="0.01" min="0.01" required>
+                            <div class="input-group">
+                                <input type="number" name="price" id="prodPrice" class="form-control"
+                                       step="0.01" min="0.01" placeholder="0.00" required>
+                                <span class="input-group-text">€</span>
+                            </div>
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-semibold">Descripció</label>
-                            <textarea name="description" id="prodDesc" class="form-control" rows="3" maxlength="1000"></textarea>
+                            <textarea name="description" id="prodDesc" class="form-control"
+                                      rows="3" maxlength="1000"
+                                      placeholder="Descriu el producte..."></textarea>
                         </div>
                         <div class="col-md-5">
                             <label class="form-label fw-semibold">Categoria</label>
@@ -202,9 +238,10 @@ require_once '../includes/header.php';
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Estoc</label>
-                            <input type="number" name="stock" id="prodStock" class="form-control" min="0" value="0">
+                            <input type="number" name="stock" id="prodStock" class="form-control"
+                                   min="0" value="0">
                         </div>
-                        <div class="col-md-3 d-flex align-items-end">
+                        <div class="col-md-3 d-flex align-items-end pb-1">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="featured" id="prodFeatured">
                                 <label class="form-check-label fw-semibold" for="prodFeatured">
@@ -213,11 +250,16 @@ require_once '../includes/header.php';
                             </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold">Imatge del producte</label>
-                            <input type="file" name="image" class="form-control" accept="image/*">
-                            <div id="currentImagePreview" class="mt-2" style="display:none;">
-                                <small class="text-muted">Imatge actual:</small>
-                                <img id="imgPreview" src="" alt="" style="height:60px;width:60px;object-fit:cover;border-radius:6px;" class="ms-2">
+                            <label class="form-label fw-semibold">
+                                Imatge del producte
+                                <small class="text-muted fw-normal">(JPG, PNG, WEBP — màx. 5 MB)</small>
+                            </label>
+                            <input type="file" name="image" id="prodImage" class="form-control"
+                                   accept="image/jpeg,image/png,image/webp,image/gif">
+                            <div id="imgPreviewWrap" class="mt-2 d-none">
+                                <small class="text-muted">Previsualització:</small><br>
+                                <img id="imgPreview" src="" alt="previsualització"
+                                     style="height:80px;width:80px;object-fit:cover;border-radius:8px;margin-top:4px;">
                             </div>
                         </div>
                     </div>
@@ -234,36 +276,53 @@ require_once '../includes/header.php';
 </div>
 
 <script>
-function editProduct(p) {
+const productModal = new bootstrap.Modal(document.getElementById('productModal'));
+
+// Botó "Afegir producte" → reseteja el modal i l'obre
+document.getElementById('btnNouProducte').addEventListener('click', function () {
+    resetModal();
+    document.getElementById('modalTitle').innerHTML = '<i class="bi bi-box-seam me-2"></i>Nou producte';
+    productModal.show();
+});
+
+// Botó "Editar" → omple el modal amb les dades del producte
+function openEditModal(p) {
+    resetModal();
     document.getElementById('modalTitle').innerHTML = '<i class="bi bi-pencil-fill me-2"></i>Editar producte';
-    document.getElementById('editId').value = p.id;
-    document.getElementById('prodName').value = p.name;
-    document.getElementById('prodPrice').value = p.price;
-    document.getElementById('prodDesc').value = p.description || '';
-    document.getElementById('prodCat').value = p.category_id || '';
-    document.getElementById('prodStock').value = p.stock || 0;
-    document.getElementById('prodFeatured').checked = p.featured == 1;
-    document.getElementById('currentImage').value = p.image;
-    // Mostrar preview imatge actual
-    const prev = document.getElementById('currentImagePreview');
-    const img  = document.getElementById('imgPreview');
-    img.src    = 'https://placehold.co/60x60/e8f5e9/2e7d32?text=' + encodeURIComponent(p.name.substring(0,5));
-    prev.style.display = 'block';
-    new bootstrap.Modal(document.getElementById('productModal')).show();
+    document.getElementById('editId').value     = p.id;
+    document.getElementById('prodName').value   = p.name;
+    document.getElementById('prodPrice').value  = p.price;
+    document.getElementById('prodDesc').value   = p.description || '';
+    document.getElementById('prodCat').value    = p.category_id || '';
+    document.getElementById('prodStock').value  = p.stock || 0;
+    document.getElementById('prodFeatured').checked = (p.featured == 1);
+    document.getElementById('currentImage').value   = p.image;
+    productModal.show();
 }
 
-// Reset modal en obrir per a afegir nou
-document.getElementById('productModal').addEventListener('show.bs.modal', function(event) {
-    if (!event.relatedTarget) return;
-    document.getElementById('modalTitle').innerHTML = '<i class="bi bi-box-seam me-2"></i>Nou producte';
-    document.getElementById('editId').value = '0';
-    document.querySelector('[name="name"]').value = '';
-    document.querySelector('[name="price"]').value = '';
-    document.querySelector('[name="description"]').value = '';
-    document.querySelector('[name="category_id"]').value = '';
-    document.querySelector('[name="stock"]').value = '0';
-    document.querySelector('[name="featured"]').checked = false;
-    document.getElementById('currentImagePreview').style.display = 'none';
+function resetModal() {
+    document.getElementById('editId').value     = '0';
+    document.getElementById('prodName').value   = '';
+    document.getElementById('prodPrice').value  = '';
+    document.getElementById('prodDesc').value   = '';
+    document.getElementById('prodCat').value    = '';
+    document.getElementById('prodStock').value  = '0';
+    document.getElementById('prodFeatured').checked = false;
+    document.getElementById('currentImage').value   = 'no-image.png';
+    document.getElementById('prodImage').value  = '';
+    document.getElementById('imgPreviewWrap').classList.add('d-none');
+}
+
+// Previsualització de la imatge seleccionada
+document.getElementById('prodImage').addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('imgPreview').src = e.target.result;
+        document.getElementById('imgPreviewWrap').classList.remove('d-none');
+    };
+    reader.readAsDataURL(file);
 });
 </script>
 
