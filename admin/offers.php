@@ -204,12 +204,15 @@ require_once '../includes/header.php';
 </div>
 
 <script>
-const offerModal = new bootstrap.Modal(document.getElementById('offerModal'));
+// Bootstrap JS es carrega al footer: obtenim la instància en el moment del clic
+function getOfferModal() {
+    return bootstrap.Modal.getOrCreateInstance(document.getElementById('offerModal'));
+}
 
 document.getElementById('btnNovaOferta').addEventListener('click', function () {
     resetOfferModal();
     document.getElementById('offerModalTitle').innerHTML = '<i class="bi bi-tag-fill me-2"></i>Nova oferta';
-    offerModal.show();
+    getOfferModal().show();
 });
 
 function openEditOfferModal(o) {
@@ -219,7 +222,7 @@ function openEditOfferModal(o) {
     document.getElementById('oName').value          = o.name;
     document.getElementById('oMessage').value       = o.message || '';
     document.getElementById('oCurrentImage').value  = o.image;
-    offerModal.show();
+    getOfferModal().show();
 }
 
 function resetOfferModal() {

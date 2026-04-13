@@ -306,8 +306,12 @@ const _phpPostData = <?= json_encode($modalPost,  JSON_HEX_TAG | JSON_HEX_AMP) ?
 <?php endif; ?>
 
 <script>
-// ── Instància única del modal ──────────────────────────────────────────────────
-const productModal = new bootstrap.Modal(document.getElementById('productModal'));
+// ── Helpers ───────────────────────────────────────────────────────────────────
+// Bootstrap JS es carrega AL FINAL (footer). Per evitar errors de timing,
+// obtenim la instància del modal en el moment del clic, no abans.
+function getProdModal() {
+    return bootstrap.Modal.getOrCreateInstance(document.getElementById('productModal'));
+}
 
 // ── Botó "Afegir producte" ────────────────────────────────────────────────────
 document.getElementById('btnNouProducte').addEventListener('click', function () {
@@ -315,7 +319,7 @@ document.getElementById('btnNouProducte').addEventListener('click', function () 
     document.getElementById('modalTitle').innerHTML =
         '<i class="bi bi-box-seam me-2"></i>Nou producte';
     clearErrors();
-    productModal.show();
+    getProdModal().show();
 });
 
 // ── Botons "Editar" (delegació d'events, segur per a qualsevol caràcter) ──────
@@ -329,7 +333,7 @@ document.addEventListener('click', function (e) {
         document.getElementById('modalTitle').innerHTML =
             '<i class="bi bi-pencil-fill me-2"></i>Editar producte';
         clearErrors();
-        productModal.show();
+        getProdModal().show();
     } catch(err) {
         alert('Error en carregar el producte: ' + err.message);
     }
@@ -363,13 +367,13 @@ function showErrors(errors) {
 
 // ── Si PHP ha retornat errors, reobrir modal amb les dades i errors ───────────
 <?php if ($reopenModal): ?>
-document.addEventListener('DOMContentLoaded', function () {
+window.addEventListener('load', function () {
     fillModal(_phpPostData);
     document.getElementById('modalTitle').innerHTML = _phpPostData.edit_id > 0
         ? '<i class="bi bi-pencil-fill me-2"></i>Editar producte'
         : '<i class="bi bi-box-seam me-2"></i>Nou producte';
     showErrors(_phpErrors);
-    productModal.show();
+    getProdModal().show();
 });
 <?php endif; ?>
 
