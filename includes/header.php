@@ -11,6 +11,9 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= isset($pageTitle) ? h($pageTitle) . ' - Jardins de Lliçà' : 'Jardins de Lliçà' ?></title>
+    <!-- Favicon (icona de la pestanya del navegador) -->
+    <link rel="icon" type="image/jpeg" href="/PHP_WEB_EI/images/logo.jpg">
+    <link rel="shortcut icon" type="image/jpeg" href="/PHP_WEB_EI/images/logo.jpg">
     <!-- Bootstrap 5 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <!-- Bootstrap Icons -->
@@ -26,7 +29,9 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
         <!-- Logo + Nom de la botiga (porta a l'inici) -->
         <a class="navbar-brand d-flex align-items-center gap-2" href="/PHP_WEB_EI/index.php">
-            <span class="logo-icon">🌿</span>
+            <img src="/PHP_WEB_EI/images/logo.jpg"
+                 alt="Jardins de Lliçà"
+                 style="width:36px; height:36px; object-fit:cover; border-radius:50%; border:2px solid rgba(255,255,255,0.5);">
             <span class="fw-bold">Jardins de Lliçà</span>
         </a>
 
