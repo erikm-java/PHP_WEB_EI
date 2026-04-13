@@ -47,13 +47,13 @@
         <!-- Copyright i autors -->
         <div class="row align-items-center">
             <div class="col-md-6">
-                <p class="mb-0 text-muted small">
-                    <strong class="text-light">Jardins de Lliçà</strong> © 2026. Tots els drets reservats.
+                <p class="mb-0 text-light small">
+                    <strong>Jardins de Lliçà</strong> © 2026. Tots els drets reservats.
                 </p>
             </div>
             <div class="col-md-6 text-md-end">
-                <p class="mb-0 text-muted small">
-                    Desenvolupat per <strong class="text-light">Alumnes de l'INS Lliçà d'Amunt</strong>
+                <p class="mb-0 text-light small">
+                    Desenvolupat per <strong>Erik Munuera i Isaac Dominguez</strong>
                 </p>
             </div>
         </div>
