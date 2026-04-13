@@ -6,34 +6,30 @@ define('DB_PASS', '');
 define('DB_NAME', 'jardins_llica');
 define('DB_CHARSET', 'utf8mb4');
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CANVIA AQUESTS VALORS amb les dades del teu hosting
-// ─────────────────────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// CANVIA AQUESTS VALORS amb les teves dades
+// ═════════════════════════════════════════════════════════════════════════════
 
-// URL del teu lloc web (sense barra final). Exemples:
-//   'https://jardinsllica.cat'
-//   'https://www.jardinsllica.cat'
-//   'http://alumne.escola.cat'
-define('SITE_URL', 'https://el-teu-domini.cat');
+// URL del teu lloc web (sense barra final)
+// Exemple InfinityFree: 'https://jardinsllica.infinityfreeapp.com'
+// Exemple domini propi: 'https://jardinsllica.cat'
+define('SITE_URL', 'https://el-teu-domini.infinityfreeapp.com');
 
-// ── Configuració SMTP (dades del teu hosting / cPanel) ───────────────────────
-// Host SMTP del teu hosting (normalment 'mail.el-teu-domini.cat')
-define('SMTP_HOST',     'mail.el-teu-domini.cat');
-// Port: 465 → SSL  |  587 → TLS (STARTTLS)
-define('SMTP_PORT',     465);
-// Tipus de xifrat: 'ssl'  o  'tls'
-define('SMTP_SECURE',   'ssl');
-// Correu electrònic creat al teu hosting (ha d'existir al cPanel)
-define('SMTP_USER',     'info@el-teu-domini.cat');
-// Contrasenya d'aquest correu
-define('SMTP_PASS',     'la-teva-contrasenya');
+// ── Brevo (brevo.com) – servei gratuït, 300 correus/dia ──────────────────────
+// Pas 1: Registra't a https://app.brevo.com (gratuït, sense targeta)
+// Pas 2: Ves a Settings → SMTP & API → API Keys → "Create a new API key"
+// Pas 3: Copia la clau i enganxa-la aquí:
+define('BREVO_API_KEY', 'xkeysib-POSA-LA-TEVA-CLAU-AQUI');
 
-// ─────────────────────────────────────────────────────────────────────────────
-
-define('MAIL_FROM',      SMTP_USER);
+// Correu remitent (ha d'estar verificat a Brevo: Settings → Senders & IPs)
+// Pots usar el teu Gmail o qualsevol correu al qual tinguis accés
+define('MAIL_FROM',      'el-teu-correu@gmail.com');
 define('MAIL_FROM_NAME', 'Jardins de Lliçà');
-define('SITE_NAME',      'Jardins de Lliçà');
-define('ADMIN_EMAIL',    SMTP_USER);
+
+// ═════════════════════════════════════════════════════════════════════════════
+
+define('SITE_NAME',   'Jardins de Lliçà');
+define('ADMIN_EMAIL', MAIL_FROM);
 
 function getDB(): PDO {
     static $pdo = null;

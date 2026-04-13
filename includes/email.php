@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/smtp_mailer.php';
 
 /**
- * Envia un correu HTML via SMTP.
+ * Envia un correu HTML via l'API de Brevo (brevo.com).
+ * Compatible amb InfinityFree i qualsevol hosting que permeti curl.
  */
 function sendEmail(string $to, string $subject, string $body): bool {
     $fullBody = '<!DOCTYPE html>
@@ -30,8 +30,35 @@ td { padding: 8px; border-bottom: 1px solid #eee; }
 </div>
 </body></html>';
 
-    $mailer = new SmtpMailer(SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_SECURE);
-    return $mailer->send($to, $subject, $fullBody, MAIL_FROM, MAIL_FROM_NAME);
+    $payload = json_encode([
+        'sender'      => ['name' => MAIL_FROM_NAME, 'email' => MAIL_FROM],
+        'to'          => [['email' => $to]],
+        'subject'     => $subject,
+        'htmlContent' => $fullBody,
+    ]);
+
+    $ch = curl_init('https://api.brevo.com/v3/smtp/email');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => $payload,
+        CURLOPT_HTTPHEADER     => [
+            'accept: application/json',
+            'content-type: application/json',
+            'api-key: ' . BREVO_API_KEY,
+        ],
+        CURLOPT_TIMEOUT        => 15,
+    ]);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode < 200 || $httpCode >= 300) {
+        error_log("Brevo error (HTTP {$httpCode}): {$response}");
+        return false;
+    }
+    return true;
 }
 
 /** Correu de benvinguda / confirmació de registre */
