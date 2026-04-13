@@ -105,7 +105,7 @@ require_once 'includes/header.php';
                     Ja pots iniciar sessió amb la nova clau.
                 </div>
                 <div class="d-grid mt-3">
-                    <a href="/PHP_WEB_EI/login.php" class="btn btn-success btn-lg">
+                    <a href="/login.php" class="btn btn-success btn-lg">
                         <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar sessió
                     </a>
                 </div>
@@ -117,7 +117,7 @@ require_once 'includes/header.php';
                     <?= h($success) ?>
                 </div>
                 <div class="text-center mt-3">
-                    <a href="/PHP_WEB_EI/login.php" class="btn btn-outline-success">
+                    <a href="/login.php" class="btn btn-outline-success">
                         <i class="bi bi-arrow-left me-2"></i>Tornar al login
                     </a>
                 </div>
@@ -160,7 +160,7 @@ require_once 'includes/header.php';
                         </button>
                     </div>
                     <div class="text-center">
-                        <a href="/PHP_WEB_EI/login.php" class="text-muted small">
+                        <a href="/login.php" class="text-muted small">
                             <i class="bi bi-arrow-left me-1"></i>Tornar al login
                         </a>
                     </div>

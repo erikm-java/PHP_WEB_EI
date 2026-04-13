@@ -113,7 +113,7 @@ require_once '../includes/header.php';
             <i class="bi bi-box-seam text-success me-2"></i>Gestió de Productes
         </h2>
         <div class="d-flex gap-2">
-            <a href="/PHP_WEB_EI/admin/index.php" class="btn btn-outline-secondary btn-sm">
+            <a href="/admin/index.php" class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-arrow-left me-1"></i>Dashboard
             </a>
             <button class="btn btn-success btn-sm" id="btnNouProducte">

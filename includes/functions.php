@@ -224,7 +224,7 @@ function sanitize(string $str): string {
 
 // ─── Imatge de producte ───────────────────────────────────────────────────────
 function productImage(string $img, string $alt = ''): string {
-    $path = '/PHP_WEB_EI/uploads/products/' . $img;
+    $path = '/uploads/products/' . $img;
     $placeholder = 'https://placehold.co/300x300/e8f5e9/2e7d32?text=' . urlencode($alt ?: 'Producte');
     // Si el fitxer existeix físicament, usa'l; si no, usa placeholder
     $fullPath = __DIR__ . '/../uploads/products/' . $img;
@@ -233,7 +233,7 @@ function productImage(string $img, string $alt = ''): string {
 }
 
 function offerImage(string $img, string $alt = ''): string {
-    $path = '/PHP_WEB_EI/uploads/offers/' . $img;
+    $path = '/uploads/offers/' . $img;
     $placeholder = 'https://placehold.co/800x300/c8e6c9/1b5e20?text=' . urlencode($alt ?: 'Oferta');
     $fullPath = __DIR__ . '/../uploads/offers/' . $img;
     $src = (file_exists($fullPath) && $img !== 'no-image.png') ? $path : $placeholder;

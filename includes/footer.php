@@ -16,19 +16,19 @@
             <div class="col-md-3">
                 <h6 class="text-uppercase text-success fw-bold mb-3">Navegació</h6>
                 <ul class="list-unstyled">
-                    <li><a href="/PHP_WEB_EI/index.php" class="footer-link">Inici</a></li>
-                    <li><a href="/PHP_WEB_EI/section.php" class="footer-link">Productes</a></li>
-                    <li><a href="/PHP_WEB_EI/contact.php" class="footer-link">Contacte</a></li>
-                    <li><a href="/PHP_WEB_EI/login.php" class="footer-link">Inicia sessió</a></li>
-                    <li><a href="/PHP_WEB_EI/register.php" class="footer-link">Registra't</a></li>
+                    <li><a href="/index.php" class="footer-link">Inici</a></li>
+                    <li><a href="/section.php" class="footer-link">Productes</a></li>
+                    <li><a href="/contact.php" class="footer-link">Contacte</a></li>
+                    <li><a href="/login.php" class="footer-link">Inicia sessió</a></li>
+                    <li><a href="/register.php" class="footer-link">Registra't</a></li>
                 </ul>
             </div>
             <!-- Legal -->
             <div class="col-md-3">
                 <h6 class="text-uppercase text-success fw-bold mb-3">Legal</h6>
                 <ul class="list-unstyled">
-                    <li><a href="/PHP_WEB_EI/cookies-policy.php" class="footer-link">Política de cookies</a></li>
-                    <li><a href="/PHP_WEB_EI/cookies-policy.php#proteccio-dades" class="footer-link">Protecció de dades</a></li>
+                    <li><a href="/cookies-policy.php" class="footer-link">Política de cookies</a></li>
+                    <li><a href="/cookies-policy.php#proteccio-dades" class="footer-link">Protecció de dades</a></li>
                 </ul>
             </div>
             <!-- Contacte -->
@@ -67,11 +67,11 @@
         <div>
             <i class="bi bi-cookie text-warning me-2"></i>
             <strong>Política de cookies:</strong> Fem servir cookies per a millorar la teva experiència i gestionar la cistella de la compra.
-            <a href="/PHP_WEB_EI/cookies-policy.php" class="text-warning">Llegir més</a>.
+            <a href="/cookies-policy.php" class="text-warning">Llegir més</a>.
         </div>
         <div class="d-flex gap-2">
             <button onclick="acceptCookies()" class="btn btn-success btn-sm">Acceptar</button>
-            <a href="/PHP_WEB_EI/cookies-policy.php" class="btn btn-outline-light btn-sm">Més informació</a>
+            <a href="/cookies-policy.php" class="btn btn-outline-light btn-sm">Més informació</a>
         </div>
     </div>
 </div>

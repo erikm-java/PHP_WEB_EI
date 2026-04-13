@@ -119,8 +119,8 @@ require_once 'includes/header.php';
 <div class="container py-4">
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/PHP_WEB_EI/index.php">Inici</a></li>
-            <li class="breadcrumb-item"><a href="/PHP_WEB_EI/cart.php">Cistella</a></li>
+            <li class="breadcrumb-item"><a href="/index.php">Inici</a></li>
+            <li class="breadcrumb-item"><a href="/cart.php">Cistella</a></li>
             <li class="breadcrumb-item active">Finalitzar compra</li>
         </ol>
     </nav>
@@ -133,11 +133,11 @@ require_once 'includes/header.php';
         <p class="lead text-muted">La teva comanda #<?= $orderId_final ?> s'ha processat correctament.</p>
         <p class="text-muted">Rebràs un correu de confirmació en breu. Gràcies per comprar a Jardins de Lliçà!</p>
         <div class="d-flex justify-content-center gap-3 mt-4">
-            <a href="/PHP_WEB_EI/index.php" class="btn btn-success btn-lg">
+            <a href="/index.php" class="btn btn-success btn-lg">
                 <i class="bi bi-house-fill me-2"></i>Tornar a l'inici
             </a>
             <?php if (isLoggedIn()): ?>
-            <a href="/PHP_WEB_EI/account.php" class="btn btn-outline-success btn-lg">
+            <a href="/account.php" class="btn btn-outline-success btn-lg">
                 <i class="bi bi-person-circle me-2"></i>El meu compte
             </a>
             <?php endif; ?>

@@ -61,7 +61,7 @@ require_once '../includes/header.php';
         <h2 class="section-title mb-0">
             <i class="bi bi-people-fill text-success me-2"></i>Gestió d'Usuaris
         </h2>
-        <a href="/PHP_WEB_EI/admin/index.php" class="btn btn-outline-secondary btn-sm">
+        <a href="/admin/index.php" class="btn btn-outline-secondary btn-sm">
             <i class="bi bi-arrow-left me-1"></i>Dashboard
         </a>
     </div>

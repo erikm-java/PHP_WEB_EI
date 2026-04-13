@@ -12,14 +12,14 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= isset($pageTitle) ? h($pageTitle) . ' - Jardins de Lliçà' : 'Jardins de Lliçà' ?></title>
     <!-- Favicon (icona de la pestanya del navegador) -->
-    <link rel="icon" type="image/jpeg" href="/PHP_WEB_EI/images/logo.jpg">
-    <link rel="shortcut icon" type="image/jpeg" href="/PHP_WEB_EI/images/logo.jpg">
+    <link rel="icon" type="image/jpeg" href="/images/logo.jpg">
+    <link rel="shortcut icon" type="image/jpeg" href="/images/logo.jpg">
     <!-- Bootstrap 5 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/PHP_WEB_EI/css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 
@@ -28,8 +28,8 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <div class="container">
 
         <!-- Logo + Nom de la botiga (porta a l'inici) -->
-        <a class="navbar-brand d-flex align-items-center gap-2" href="/PHP_WEB_EI/index.php">
-            <img src="/PHP_WEB_EI/images/logo.jpg"
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/index.php">
+            <img src="/images/logo.jpg"
                  alt="Jardins de Lliçà"
                  style="width:36px; height:36px; object-fit:cover; border-radius:50%; border:2px solid rgba(255,255,255,0.5);">
             <span class="fw-bold">Jardins de Lliçà</span>
@@ -45,7 +45,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             <!-- Menú principal -->
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link <?= $currentPage === 'index.php' ? 'active' : '' ?>" href="/PHP_WEB_EI/index.php">
+                    <a class="nav-link <?= $currentPage === 'index.php' ? 'active' : '' ?>" href="/index.php">
                         <i class="bi bi-house-fill"></i> Inici
                     </a>
                 </li>
@@ -58,7 +58,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                     <ul class="dropdown-menu">
                         <?php foreach ($categories as $cat): ?>
                         <li>
-                            <a class="dropdown-item" href="/PHP_WEB_EI/section.php?slug=<?= h($cat['slug']) ?>">
+                            <a class="dropdown-item" href="/section.php?slug=<?= h($cat['slug']) ?>">
                                 <?= h($cat['name']) ?>
                             </a>
                         </li>
@@ -67,20 +67,20 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="/PHP_WEB_EI/contact.php">
+                    <a class="nav-link" href="/contact.php">
                         <i class="bi bi-telephone-fill"></i> Contacte
                     </a>
                 </li>
 
                 <?php if (isLoggedIn()): ?>
                     <li class="nav-item">
-                        <a class="nav-link <?= $currentPage === 'account.php' ? 'active' : '' ?>" href="/PHP_WEB_EI/account.php">
+                        <a class="nav-link <?= $currentPage === 'account.php' ? 'active' : '' ?>" href="/account.php">
                             <i class="bi bi-person-circle"></i> Gestió del compte
                         </a>
                     </li>
                     <?php if (isAdmin()): ?>
                     <li class="nav-item">
-                        <a class="nav-link text-warning <?= strpos($currentPage, 'admin') !== false ? 'active' : '' ?>" href="/PHP_WEB_EI/admin/index.php">
+                        <a class="nav-link text-warning <?= strpos($currentPage, 'admin') !== false ? 'active' : '' ?>" href="/admin/index.php">
                             <i class="bi bi-gear-fill"></i> Administració
                         </a>
                     </li>
@@ -89,7 +89,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             </ul>
 
             <!-- Cercador -->
-            <form class="d-flex me-3 my-2 my-lg-0" action="/PHP_WEB_EI/search.php" method="GET">
+            <form class="d-flex me-3 my-2 my-lg-0" action="/search.php" method="GET">
                 <div class="input-group">
                     <input class="form-control form-control-sm" type="search" name="q"
                            placeholder="Cercar productes..."
@@ -111,13 +111,13 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                         </span>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/PHP_WEB_EI/logout.php" title="Tancar sessió">
+                        <a class="nav-link" href="/logout.php" title="Tancar sessió">
                             <i class="bi bi-box-arrow-right"></i> Log out
                         </a>
                     </li>
                 <?php else: ?>
                     <li class="nav-item">
-                        <a class="nav-link <?= $currentPage === 'login.php' ? 'active' : '' ?>" href="/PHP_WEB_EI/login.php">
+                        <a class="nav-link <?= $currentPage === 'login.php' ? 'active' : '' ?>" href="/login.php">
                             <i class="bi bi-box-arrow-in-right"></i> Log in
                         </a>
                     </li>
@@ -125,7 +125,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
                 <!-- Cistella -->
                 <li class="nav-item">
-                    <a class="nav-link position-relative" href="/PHP_WEB_EI/cart.php" title="Cistella">
+                    <a class="nav-link position-relative" href="/cart.php" title="Cistella">
                         <i class="bi bi-cart-fill fs-5"></i>
                         <?php if ($cartCount > 0): ?>
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark cart-badge">

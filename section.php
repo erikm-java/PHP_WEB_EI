@@ -32,8 +32,8 @@ require_once 'includes/header.php';
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/PHP_WEB_EI/index.php">Inici</a></li>
-            <li class="breadcrumb-item"><a href="/PHP_WEB_EI/section.php">Productes</a></li>
+            <li class="breadcrumb-item"><a href="/index.php">Inici</a></li>
+            <li class="breadcrumb-item"><a href="/section.php">Productes</a></li>
             <?php if ($category): ?>
             <li class="breadcrumb-item active"><?= h($category['name']) ?></li>
             <?php endif; ?>
@@ -48,12 +48,12 @@ require_once 'includes/header.php';
                     <i class="bi bi-grid-fill me-2"></i>Categories
                 </div>
                 <div class="list-group list-group-flush rounded-bottom-3">
-                    <a href="/PHP_WEB_EI/section.php"
+                    <a href="/section.php"
                        class="list-group-item list-group-item-action <?= !$slug ? 'active bg-success text-white border-0' : '' ?>">
                         <i class="bi bi-collection me-2"></i>Tots els productes
                     </a>
                     <?php foreach ($categories as $cat): ?>
-                    <a href="/PHP_WEB_EI/section.php?slug=<?= h($cat['slug']) ?>"
+                    <a href="/section.php?slug=<?= h($cat['slug']) ?>"
                        class="list-group-item list-group-item-action <?= ($slug === $cat['slug']) ? 'active bg-success text-white border-0' : '' ?>">
                         <?= h($cat['name']) ?>
                     </a>

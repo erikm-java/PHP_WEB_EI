@@ -68,7 +68,7 @@ require_once 'includes/header.php';
                     <div class="mb-4">
                         <div class="d-flex justify-content-between">
                             <label class="form-label fw-semibold">Clau *</label>
-                            <a href="/PHP_WEB_EI/recover-password.php" class="small text-success">Has oblidat la clau?</a>
+                            <a href="/recover-password.php" class="small text-success">Has oblidat la clau?</a>
                         </div>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
@@ -92,7 +92,7 @@ require_once 'includes/header.php';
                     </div>
 
                     <div class="d-grid">
-                        <a href="/PHP_WEB_EI/register.php" class="btn btn-outline-success">
+                        <a href="/register.php" class="btn btn-outline-success">
                             <i class="bi bi-person-plus-fill me-2"></i>Crea un compte nou
                         </a>
                     </div>

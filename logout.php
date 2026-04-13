@@ -11,5 +11,5 @@ if (ini_get("session.use_cookies")) {
 }
 session_destroy();
 setFlash('info', 'Has tancat la sessió correctament. Fins aviat! 👋');
-header('Location: /PHP_WEB_EI/index.php');
+header('Location: /index.php');
 exit;

@@ -16,10 +16,10 @@ require_once 'includes/header.php';
                 <h1 class="fade-in-up">La natura a la porta de casa</h1>
                 <p class="lead fade-in-up">Descobreix el nostre catàleg de plantes, llavors i accessoris de jardineria. Qualitat local, preus honestos.</p>
                 <div class="d-flex flex-wrap gap-3 mt-4 fade-in-up">
-                    <a href="/PHP_WEB_EI/section.php" class="btn btn-warning btn-lg fw-bold px-4">
+                    <a href="/section.php" class="btn btn-warning btn-lg fw-bold px-4">
                         <i class="bi bi-shop-window me-2"></i>Veure productes
                     </a>
-                    <a href="/PHP_WEB_EI/contact.php" class="btn btn-outline-light btn-lg px-4">
+                    <a href="/contact.php" class="btn btn-outline-light btn-lg px-4">
                         <i class="bi bi-telephone me-2"></i>Contacta'ns
                     </a>
                 </div>
@@ -49,7 +49,7 @@ require_once 'includes/header.php';
                     <div class="offer-card d-flex flex-column justify-content-center align-items-center text-center p-5" style="min-height:300px;">
                         <h3 class="fw-bold mb-3"><?= h($offer['name']) ?></h3>
                         <p class="fs-5 opacity-90 mb-4"><?= h($offer['message']) ?></p>
-                        <a href="/PHP_WEB_EI/section.php" class="btn btn-warning btn-lg fw-bold">
+                        <a href="/section.php" class="btn btn-warning btn-lg fw-bold">
                             <i class="bi bi-cart-plus me-2"></i>Aprofita l'oferta
                         </a>
                     </div>
@@ -75,7 +75,7 @@ require_once 'includes/header.php';
     <div class="container">
         <div class="d-flex justify-content-between align-items-end mb-4">
             <h2 class="section-title"><i class="bi bi-star-fill text-warning me-2"></i>Productes destacats</h2>
-            <a href="/PHP_WEB_EI/section.php" class="btn btn-outline-success">Veure tots <i class="bi bi-arrow-right"></i></a>
+            <a href="/section.php" class="btn btn-outline-success">Veure tots <i class="bi bi-arrow-right"></i></a>
         </div>
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
             <?php foreach ($featuredProducts as $prod): ?>
@@ -91,7 +91,7 @@ require_once 'includes/header.php';
                         <p class="card-text text-muted small flex-grow-1"><?= h(mb_substr($prod['description'], 0, 80)) ?>...</p>
                         <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
                             <span class="price"><?= number_format($prod['price'], 2) ?> €</span>
-                            <form action="/PHP_WEB_EI/cart.php" method="POST">
+                            <form action="/cart.php" method="POST">
                                 <input type="hidden" name="action" value="add">
                                 <input type="hidden" name="product_id" value="<?= $prod['id'] ?>">
                                 <button type="submit" class="btn btn-success btn-sm">
@@ -118,7 +118,7 @@ require_once 'includes/header.php';
             foreach ($categories as $i => $cat):
             ?>
             <div class="col">
-                <a href="/PHP_WEB_EI/section.php?slug=<?= h($cat['slug']) ?>" class="text-decoration-none">
+                <a href="/section.php?slug=<?= h($cat['slug']) ?>" class="text-decoration-none">
                     <div class="card text-center py-4 h-100 border-0 shadow-sm rounded-3 category-card" style="background:var(--green-pale); transition:all .2s">
                         <div class="display-4"><?= $catEmojis[$i % count($catEmojis)] ?></div>
                         <div class="card-body">

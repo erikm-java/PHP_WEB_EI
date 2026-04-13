@@ -97,7 +97,7 @@ require_once '../includes/header.php';
             <i class="bi bi-tag-fill text-warning me-2"></i>Gestió d'Ofertes
         </h2>
         <div class="d-flex gap-2">
-            <a href="/PHP_WEB_EI/admin/index.php" class="btn btn-outline-secondary btn-sm">
+            <a href="/admin/index.php" class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-arrow-left me-1"></i>Dashboard
             </a>
             <button class="btn btn-warning btn-sm text-dark" id="btnNovaOferta">

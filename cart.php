@@ -42,7 +42,7 @@ require_once 'includes/header.php';
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/PHP_WEB_EI/index.php">Inici</a></li>
+            <li class="breadcrumb-item"><a href="/index.php">Inici</a></li>
             <li class="breadcrumb-item active">Cistella</li>
         </ol>
     </nav>
@@ -55,7 +55,7 @@ require_once 'includes/header.php';
         <div class="display-1 mb-3">🛒</div>
         <h4 class="text-muted">La teva cistella és buida</h4>
         <p class="text-muted">Afegeix productes per a continuar amb la compra.</p>
-        <a href="/PHP_WEB_EI/section.php" class="btn btn-success btn-lg mt-3">
+        <a href="/section.php" class="btn btn-success btn-lg mt-3">
             <i class="bi bi-shop-window me-2"></i>Veure productes
         </a>
     </div>
@@ -118,7 +118,7 @@ require_once 'includes/header.php';
                     </div>
                 </div>
                 <div class="card-footer bg-white d-flex justify-content-between flex-wrap gap-2 py-3">
-                    <a href="/PHP_WEB_EI/section.php" class="btn btn-outline-secondary">
+                    <a href="/section.php" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left me-2"></i>Continuar comprant
                     </a>
                     <form action="" method="POST" onsubmit="return confirm('Vols buidar la cistella?')">
@@ -162,7 +162,7 @@ require_once 'includes/header.php';
                     <span class="fw-bold fs-5">TOTAL</span>
                     <span class="cart-total"><?= number_format($total + ($total < 50 ? 4.99 : 0), 2) ?> €</span>
                 </div>
-                <a href="/PHP_WEB_EI/checkout.php" class="btn btn-success btn-lg w-100 fw-bold">
+                <a href="/checkout.php" class="btn btn-success btn-lg w-100 fw-bold">
                     <i class="bi bi-credit-card-fill me-2"></i>Finalitzar compra
                 </a>
                 <p class="text-muted small text-center mt-3">

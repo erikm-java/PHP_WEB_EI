@@ -50,7 +50,7 @@ require_once 'includes/header.php';
             <i class="bi bi-search fs-3"></i>
             <div>
                 <strong>Sense resultats.</strong> No hem trobat cap producte que coincideixi amb "<em><?= h($query) ?></em>".
-                <br>Prova amb una altra paraula o <a href="/PHP_WEB_EI/section.php">explora les nostres categories</a>.
+                <br>Prova amb una altra paraula o <a href="/section.php">explora les nostres categories</a>.
             </div>
         </div>
     <?php else: ?>
@@ -94,7 +94,7 @@ require_once 'includes/header.php';
         <div class="display-1 mb-3">🔍</div>
         <h4 class="text-muted">Comença a cercar productes</h4>
         <p class="text-muted">Escriu el nom d'una planta, eina o producte al cercador de dalt.</p>
-        <a href="/PHP_WEB_EI/section.php" class="btn btn-success mt-3">
+        <a href="/section.php" class="btn btn-success mt-3">
             <i class="bi bi-grid-fill me-2"></i>Explorar totes les seccions
         </a>
     </div>

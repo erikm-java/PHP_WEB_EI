@@ -223,8 +223,8 @@ if ($success) {
         <p class="mb-2"><strong>Credencials de l\'administrador:</strong><br>
         Usuari: <code>admin</code> · Clau: <code>Admin1234!</code></p>
         <div class="d-flex gap-2 mt-3">
-            <a href="/PHP_WEB_EI/index.php" class="btn btn-success">🌿 Anar a la botiga</a>
-            <a href="/PHP_WEB_EI/login.php" class="btn btn-outline-success">Iniciar sessió</a>
+            <a href="/index.php" class="btn btn-success">🌿 Anar a la botiga</a>
+            <a href="/login.php" class="btn btn-outline-success">Iniciar sessió</a>
         </div>
     </div>
     <div class="alert alert-warning mt-3">

@@ -10,7 +10,7 @@ define('DB_CHARSET', 'utf8mb4');
 define('MAIL_FROM', 'noreply@jardinsllica.cat');
 define('MAIL_FROM_NAME', 'Jardins de Lliçà');
 define('SITE_NAME', 'Jardins de Lliçà');
-define('SITE_URL', 'http://localhost/PHP_WEB_EI');
+define('SITE_URL', 'http://localhost');
 define('ADMIN_EMAIL', 'admin@jardinsllica.cat');
 
 function getDB(): PDO {

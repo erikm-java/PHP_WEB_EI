@@ -65,7 +65,7 @@ require_once 'includes/header.php';
                     <i class="bi bi-check-circle-fill fs-4 d-block mb-2"></i>
                     <strong>Compte creat correctament!</strong><br>
                     T'hem enviat un correu de benvinguda.<br>
-                    <a href="/PHP_WEB_EI/login.php" class="btn btn-success mt-3">
+                    <a href="/login.php" class="btn btn-success mt-3">
                         <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar sessió
                     </a>
                 </div>
@@ -134,7 +134,7 @@ require_once 'includes/header.php';
 
                     <div class="text-center text-muted small">
                         Ja tens compte?
-                        <a href="/PHP_WEB_EI/login.php" class="fw-semibold">Inicia sessió</a>
+                        <a href="/login.php" class="fw-semibold">Inicia sessió</a>
                     </div>
                 </form>
                 <?php endif; ?>

@@ -29,7 +29,7 @@ require_once '../includes/header.php';
                 <div class="display-5 mb-2">🌿</div>
                 <h2 class="fw-bold"><?= $totalProducts ?></h2>
                 <p class="mb-0 opacity-75">Productes actius</p>
-                <a href="/PHP_WEB_EI/admin/products.php" class="btn btn-outline-light btn-sm mt-3">Gestionar</a>
+                <a href="/admin/products.php" class="btn btn-outline-light btn-sm mt-3">Gestionar</a>
             </div>
         </div>
         <div class="col-sm-6 col-xl-3">
@@ -37,7 +37,7 @@ require_once '../includes/header.php';
                 <div class="display-5 mb-2">👥</div>
                 <h2 class="fw-bold"><?= $totalUsers ?></h2>
                 <p class="mb-0 opacity-75">Usuaris registrats</p>
-                <a href="/PHP_WEB_EI/admin/users.php" class="btn btn-outline-light btn-sm mt-3">Gestionar</a>
+                <a href="/admin/users.php" class="btn btn-outline-light btn-sm mt-3">Gestionar</a>
             </div>
         </div>
         <div class="col-sm-6 col-xl-3">
@@ -62,17 +62,17 @@ require_once '../includes/header.php';
             <h5 class="fw-bold mb-3">Accions ràpides</h5>
         </div>
         <div class="col-sm-4">
-            <a href="/PHP_WEB_EI/admin/products.php?action=add" class="btn btn-success w-100 py-3">
+            <a href="/admin/products.php?action=add" class="btn btn-success w-100 py-3">
                 <i class="bi bi-plus-circle-fill fs-4 d-block mb-1"></i>Afegir producte
             </a>
         </div>
         <div class="col-sm-4">
-            <a href="/PHP_WEB_EI/admin/offers.php?action=add" class="btn btn-warning w-100 py-3 text-dark">
+            <a href="/admin/offers.php?action=add" class="btn btn-warning w-100 py-3 text-dark">
                 <i class="bi bi-tag-fill fs-4 d-block mb-1"></i>Afegir oferta
             </a>
         </div>
         <div class="col-sm-4">
-            <a href="/PHP_WEB_EI/admin/users.php" class="btn btn-primary w-100 py-3">
+            <a href="/admin/users.php" class="btn btn-primary w-100 py-3">
                 <i class="bi bi-people-fill fs-4 d-block mb-1"></i>Gestionar usuaris
             </a>
         </div>

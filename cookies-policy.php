@@ -7,7 +7,7 @@ require_once 'includes/header.php';
 <div class="container py-5">
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/PHP_WEB_EI/index.php">Inici</a></li>
+            <li class="breadcrumb-item"><a href="/index.php">Inici</a></li>
             <li class="breadcrumb-item active">Política de Cookies i Protecció de Dades</li>
         </ol>
     </nav>
