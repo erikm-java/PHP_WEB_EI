@@ -1,18 +1,11 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/smtp_mailer.php';
 
 /**
- * Envia un correu electrònic amb capçaleres HTML.
- * En un entorn de producció caldria configurar un servidor SMTP
- * o usar PHPMailer/SendGrid/etc.
+ * Envia un correu HTML via SMTP.
  */
 function sendEmail(string $to, string $subject, string $body): bool {
-    $headers  = "MIME-Version: 1.0\r\n";
-    $headers .= "Content-type: text/html; charset=UTF-8\r\n";
-    $headers .= "From: " . MAIL_FROM_NAME . " <" . MAIL_FROM . ">\r\n";
-    $headers .= "Reply-To: " . MAIL_FROM . "\r\n";
-    $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
-
     $fullBody = '<!DOCTYPE html>
 <html lang="ca">
 <head><meta charset="UTF-8"><style>
@@ -30,14 +23,15 @@ td { padding: 8px; border-bottom: 1px solid #eee; }
 </style></head>
 <body>
 <div class="container">
-  <div class="header"><h1>🌿 Jardins de Lliçà</h1></div>
+  <div class="header"><h1>&#127807; Jardins de Llicà</h1></div>
   <div class="content">' . $body . '</div>
-  <div class="footer">Jardins de Lliçà · Carrer Major, 15, Lliçà d\'Amunt · Tel: 938 428 000<br>
+  <div class="footer">Jardins de Llicà &middot; Carrer Major, 15, Llicà d\'Amunt &middot; Tel: 938 428 000<br>
   Aquest correu és automàtic, si us plau no respongueu.</div>
 </div>
 </body></html>';
 
-    return @mail($to, $subject, $fullBody, $headers);
+    $mailer = new SmtpMailer(SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_SECURE);
+    return $mailer->send($to, $subject, $fullBody, MAIL_FROM, MAIL_FROM_NAME);
 }
 
 /** Correu de benvinguda / confirmació de registre */
